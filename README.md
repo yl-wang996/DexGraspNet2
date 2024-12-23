@@ -50,8 +50,9 @@ pip install ikpy
 
 pip install einops
 
-git clone git@github.com:huggingface/diffusers.git
-(cd diffusers; pip install -e ".[torch]")
+#git clone git@github.com:huggingface/diffusers.git
+#(cd diffusers; pip install -e ".[torch]")
+pip install diffusers
 
 pip install graspnetAPI
 
