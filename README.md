@@ -12,17 +12,19 @@ Official code for "**DexGraspNet 2.0: Learning Generative Dexterous Grasping in 
 - sudo (Only needed if you don't have libopenblas-dev installed)
 
 ```bash
-
+# create env
 conda create -n DexGrasp python=3.8
 conda activate DexGrasp
 
-conda install pytorch==2.0.1 torchvision==0.15.2 torchaudio==2.0.2 pytorch-cuda=11.7 -c pytorch -c nvidia
+# install pytorch
+pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117
 
 wget https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud/pytorch3d/linux-64/pytorch3d-0.7.5-py38_cu117_pyt201.tar.bz2
 conda install -y --use-local ./pytorch3d-0.7.5-py38_cu117_pyt201.tar.bz2
 
 git clone git@github.com:wrc042/TorchSDF.git
-(cd TorchSDF; pip install -e .)
+cd TorchSDF
+bash install.sh
 
 git clone git@github.com:mzhmxzh/torchprimitivesdf.git
 (cd torchprimitivesdf; pip install -e .)
