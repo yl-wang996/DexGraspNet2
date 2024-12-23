@@ -1,0 +1,10 @@
+README.md
+setup.py
+torchprimitivesdf.egg-info/PKG-INFO
+torchprimitivesdf.egg-info/SOURCES.txt
+torchprimitivesdf.egg-info/dependency_links.txt
+torchprimitivesdf.egg-info/not-zip-safe
+torchprimitivesdf.egg-info/top_level.txt
+torchprimitivesdf/csrc/bindings.cpp
+torchprimitivesdf/csrc/primitive_distance.cpp
+torchprimitivesdf/csrc/primitive_distance_cuda.cu

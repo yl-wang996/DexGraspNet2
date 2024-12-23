@@ -1,0 +1,4 @@
+# ninja log v5
+1	5051	1734970686870655612	/home/yunlongwang/workspace/DexGraspNet2/thirdparty/TorchSDF/build/temp.linux-x86_64-cpython-38/torchsdf/csrc/unbatched_triangle_distance.o	ddfcf151099e00bc
+1	15329	1734970697142655066	/home/yunlongwang/workspace/DexGraspNet2/thirdparty/TorchSDF/build/temp.linux-x86_64-cpython-38/torchsdf/csrc/unbatched_triangle_distance_cuda.o	d4872ccf570d4d7e
+0	16822	1734970698630654985	/home/yunlongwang/workspace/DexGraspNet2/thirdparty/TorchSDF/build/temp.linux-x86_64-cpython-38/torchsdf/csrc/bindings.o	f566e5a39480df73

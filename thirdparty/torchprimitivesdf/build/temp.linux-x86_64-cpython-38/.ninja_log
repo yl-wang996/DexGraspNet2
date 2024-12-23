@@ -1,0 +1,4 @@
+# ninja log v5
+0	5799	1734970879366643713	/home/yunlongwang/workspace/DexGraspNet2/thirdparty/torchprimitivesdf/build/temp.linux-x86_64-cpython-38/torchprimitivesdf/csrc/primitive_distance.o	47d71a9f2037cd48
+0	14997	1734970888574643065	/home/yunlongwang/workspace/DexGraspNet2/thirdparty/torchprimitivesdf/build/temp.linux-x86_64-cpython-38/torchprimitivesdf/csrc/primitive_distance_cuda.o	30f62dd63a7f0ee6
+0	16504	1734970890070642959	/home/yunlongwang/workspace/DexGraspNet2/thirdparty/torchprimitivesdf/build/temp.linux-x86_64-cpython-38/torchprimitivesdf/csrc/bindings.o	de4255a52bdda4fd
