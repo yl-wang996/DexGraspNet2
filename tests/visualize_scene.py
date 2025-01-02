@@ -15,11 +15,13 @@ import plotly.graph_objects as go
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('--scene_id', type=str, default='0001')
+    parser.add_argument('--data_root', type=str, default='data', help='root path of the data')
     args = parser.parse_args()
-    
+    # data_root = '/media/yunlongwang/DatasetStorage/DexGraspNet2/data'
+    data_root = args.data_root
     # load scene annotation
     scene_path = os.path.join(
-        'data/scenes', f'scene_{args.scene_id}')
+        data_root, 'scenes', f'scene_{args.scene_id}')
     extrinsics_path = os.path.join(scene_path, 'kinect/cam0_wrt_table.npy')
     extrinsics = np.load(extrinsics_path)
     annotation_path = os.path.join(scene_path, 'kinect/annotations/0000.xml')
@@ -41,7 +43,7 @@ if __name__ == '__main__':
     # load object meshes
     object_meshes = {}
     for object_code in object_pose_dict.keys():
-        object_path = os.path.join('data/meshdata', object_code, 'simplified.obj')
+        object_path = os.path.join(data_root, 'meshdata', object_code, 'simplified.obj')
         object_meshes[object_code] = tm.load(object_path)
     
     # plotly data

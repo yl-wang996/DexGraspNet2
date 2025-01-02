@@ -7,14 +7,14 @@ from graspnetAPI.utils.eval_utils import eval_grasp as eval_grasp_api
 
 ge = None
 
-def eval_grasp(scene_id, ann_id, grasp: np.ndarray, TOP_K = 50, max_width = 0.1, camera='realsense'):
+def eval_grasp(scene_id, ann_id, grasp: np.ndarray, TOP_K = 50, max_width = 0.1, camera='realsense', data_root='data'):
     global ge
     if ge is None:
         try:
             # Optional speed up by specifying sceneIds
-            ge = GraspNetEval(root='data', camera=camera, split='custom', sceneIds=[scene_id])
+            ge = GraspNetEval(root=data_root, camera=camera, split='custom', sceneIds=[scene_id])
         except:
-            ge = GraspNetEval(root='data', camera=camera, split='all')
+            ge = GraspNetEval(root=data_root, camera=camera, split='all')
     config = get_config()
     table = create_table_points(1.0, 1.0, 0.05, dx=-0.5, dy=-0.5, dz=-0.05, grid_size=0.008)
 

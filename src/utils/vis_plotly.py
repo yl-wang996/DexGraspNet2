@@ -29,8 +29,10 @@ class Vis:
                  robot_name: str = 'leap_hand',
                  urdf_path: Optional[str] = None, 
                  meta_path: Optional[str] = None,
+                 data_root: str = 'data',
     ):
         self.robot_name = robot_name
+        self.data_root = data_root
         if self.robot_name == 'gripper':
             self.robot_joints = ['width', 'depth']
         else:
@@ -314,7 +316,7 @@ class Vis:
             seg = seg[idxs]
             edge = edge[idxs]
             if graspness_path is not None:
-                graspness = np.load(os.path.join('data', graspness_path, scene, camera, str(view).zfill(4) + '.npy'))
+                graspness = np.load(os.path.join(self.data_root, graspness_path, scene, camera, str(view).zfill(4) + '.npy'))
                 graspness = graspness.reshape(-1)
                 graspness = graspness[idxs]
 
@@ -367,7 +369,7 @@ class Vis:
             if with_pc is True, return both pc and plotly
             pc: torch.tensor (N, 5) with (x, y, z, seg, graspness)
         """
-        path = os.path.join('data', 'scenes', scene, camera)
+        path = os.path.join(self.data_root, 'scenes', scene, camera)
         gt_str = "_gt" * gt
         if mode == 'pc':
             # loading
@@ -400,7 +402,7 @@ class Vis:
             seg = seg[idxs]
             edge = edge[idxs]
             if graspness_path is not None:
-                graspness = np.load(os.path.join('data', graspness_path, scene, camera, str(view).zfill(4) + '.npy'))
+                graspness = np.load(os.path.join(self.data_root, graspness_path, scene, camera, str(view).zfill(4) + '.npy'))
                 graspness = graspness.reshape(-1)
                 graspness = graspness[idxs]
 
@@ -428,7 +430,7 @@ class Vis:
             for posevector in tqdm(posevectors, desc='loading scene objects'):
                 obj_idx, pose = parse_posevector(posevector)
                 pose = torch.from_numpy(pose).float()
-                mesh_path = os.path.join('data', 'meshdata', str(obj_idx).zfill(3), 'coacd', 'decomposed.obj')
+                mesh_path = os.path.join(self.data_root, 'meshdata', str(obj_idx).zfill(3), 'coacd', 'decomposed.obj')
                 result += self.mesh_plotly(mesh_path, trans=pose[:3, 3], rot=pose[:3, :3], opacity=opacity)
             
             table_mat = np.linalg.inv(np.matmul(align_mat, camera_poses[int(view)]))
@@ -444,7 +446,7 @@ class Vis:
         view: str,
         camera: str = 'kinect',
     ):
-        path = os.path.join('data', 'scenes', scene, camera)
+        path = os.path.join(self.data_root, 'scenes', scene, camera)
         camera_pose = np.load(os.path.join(path, 'camera_poses.npy'))[int(view)]
         align_mat = np.load(os.path.join(path, 'cam0_wrt_table.npy'))
         pose = np.linalg.inv(np.matmul(align_mat, camera_pose))

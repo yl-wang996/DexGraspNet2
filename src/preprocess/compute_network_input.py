@@ -29,20 +29,21 @@ if __name__ == '__main__':
     parser.add_argument('--seed', type=int, 
         default=0)
     parser.add_argument('--overwrite', type=int, default=0)
+    parser.add_argument('--data_root', type=str, default='data', help='root path of the data')
     args = parser.parse_args()
     
     set_seed(args.seed)
     
     if args.dataset == 'graspnet':
         # not overwrite
-        save_path = path = os.path.join('data/scenes', args.scene_id, args.camera, 'network_input.npz')
+        save_path = path = os.path.join(args.data_root, 'scenes', args.scene_id, args.camera, 'network_input.npz')
     elif args.dataset == 'acronym':
         if args.scene_id.split('_')[1] == 'dense':
-            save_path = path = os.path.join('data/acronym_test_scenes/network_input_dense', args.scene_id, args.camera, 'network_input.npz')
+            save_path = path = os.path.join(args.data_root, 'acronym_test_scenes/network_input_dense', args.scene_id, args.camera, 'network_input.npz')
         elif args.scene_id.split('_')[1] == 'random':
-            save_path = path = os.path.join('data/acronym_test_scenes/network_input_random', args.scene_id, args.camera, 'network_input.npz')
+            save_path = path = os.path.join(args.data_root, 'acronym_test_scenes/network_input_random', args.scene_id, args.camera, 'network_input.npz')
         else:
-            save_path = path = os.path.join('data/acronym_test_scenes/network_input_loose', args.scene_id, args.camera, 'network_input.npz')
+            save_path = path = os.path.join(args.data_root, 'acronym_test_scenes/network_input_loose', args.scene_id, args.camera, 'network_input.npz')
     if os.path.exists(save_path) and not args.overwrite:
         quit()
     
@@ -51,6 +52,7 @@ if __name__ == '__main__':
         robot_name=args.robot_name,
         urdf_path=args.urdf_path,
         meta_path=args.meta_path,
+        data_root=args.data_root
     )
     
     view_id_list = [str(i).zfill(4) for i in range(256)]

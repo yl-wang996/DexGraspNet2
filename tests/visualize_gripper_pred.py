@@ -33,15 +33,18 @@ parser.add_argument('--ratio', type=float, default=0.05)
 parser.add_argument('--display', type=str, default='all')
 parser.add_argument('--display_thresh', type=float, default=0.0)
 parser.add_argument('--seed', type=int, default=0)
+parser.add_argument('--data_root', type=str, default='data', help='root path of the data')
 args = parser.parse_args()
 
 set_seed(args.seed)
 
 if __name__ == '__main__':
+    data_root = args.data_root
     vis = Vis(
         robot_name=args.robot_name,
         urdf_path=args.urdf_path,
         meta_path=args.meta_path,
+        data_root=data_root
     )
 
     pc_plotly, pc = vis.scene_plotly(args.scene, args.view, args.camera, with_pc=True, mode='pc')
@@ -67,7 +70,7 @@ if __name__ == '__main__':
         depth = torch.full_like(width, GRIPPER_NEW_DEPTH)
     
     grasp_17d = pack_17dgrasp(rot[0], trans[0], width[0], depth[0], score[0])
-    nms_grasp, nms_score, nms_collision, nms_accuracy = eval_grasp(int(args.scene.split('_')[-1]), int(args.view), grasp_17d)
+    nms_grasp, nms_score, nms_collision, nms_accuracy = eval_grasp(int(args.scene.split('_')[-1]), int(args.view), grasp_17d, data_root=data_root)
     if args.display != 'all':
         rot, trans, width, depth, score = (t[None] for t in unpack_17dgrasp(nms_grasp))
 

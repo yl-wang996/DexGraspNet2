@@ -18,27 +18,35 @@ from src.utils.logger import Logger
 from src.utils.config import load_config, add_argparse
 from src.utils.util import set_seed
 
+
+
 arg_mapping = [
     # (key in console, (key in config, type, default value))
     ('exp_name', ('exp_name', str, None)),
     ('type', ('model/type', str, None)), # key in config can be hierarchical
     ('backbone', ('model/backbone', str, None)),
     ('split', ('train_split', str, None)), 
-    ('grasp_data', ('data/grasp_data', str, None)), 
+    ('grasp_data', ('data/grasp_data', str, None)),
     ('iter', ('max_iter', int, None)), 
     ('camera', ('camera', str, None)), 
     ('dist_joint', ('model/dist_joint', int, None)), 
-    ('frac', ('data/fraction', int, None)), 
+    ('frac', ('data/fraction', int, None)),
     ('scene_frac', ('data/scene_fraction', int, None)), 
     ('diff_pred', ('model/diffusion/scheduler/prediction_type', str, None)), 
-    ('yaml', ('yaml', str, os.path.join('configs', 'network', 'train.yaml'))), 
+    ('yaml', ('yaml', str, os.path.join('configs', 'network', 'train.yaml'))),
+    ('data_root', ('data_root', str, '/media/yunlongwang/DatasetStorage/DexGraspNet2/data')),
 ]
-
 def main():
+    DEBUG = True
     # process config, seed, logger, device
     parser = argparse.ArgumentParser()
     add_argparse(parser, arg_mapping)
     args = parser.parse_args()
+    if DEBUG:
+        args.exp_name = "exp_gripper_ours"
+        args.yaml = "configs/network/train_gripper_ours.yaml"
+
+
     config = load_config(args.yaml, arg_mapping, args)
     pprint(config)
     set_seed(config.seed)
@@ -46,8 +54,8 @@ def main():
     device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
 
     # loading data, val loader can have multiple splits
-    train_dataset = GraspNetDataset(config, config.train_split, is_train=True)
-    val_datasets = [GraspNetDataset(config, split, is_train=False) for split in config.val_split]
+    train_dataset = GraspNetDataset(config, config.train_split, is_train=True,data_root=args.data_root)
+    val_datasets = [GraspNetDataset(config, split, is_train=False, data_root=args.data_root) for split in config.val_split]
     train_loader = Loader(DataLoader(train_dataset, batch_size=config.batch_size, drop_last=True, num_workers=config.num_workers, shuffle=True, collate_fn=minkowski_collate_fn))
     val_loader = [Loader(DataLoader(dataset, batch_size=config.batch_size, drop_last=True, num_workers=config.num_workers, shuffle=True, collate_fn=minkowski_collate_fn)) for dataset in val_datasets]
 

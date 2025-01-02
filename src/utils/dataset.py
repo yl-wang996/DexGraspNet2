@@ -40,7 +40,9 @@ class GraspNetDataset(Dataset):
                  split: str,
                  is_train: bool = False,
                  is_eval: bool = False,
+                 data_root: str = 'data'
     ):
+        self.data_root = data_root
         self.full_config = config
         self.config = config = config.data
         self.is_train = is_train
@@ -64,7 +66,7 @@ class GraspNetDataset(Dataset):
             for i in ann_id:
                 self.views.append((scene, i))
         if config.robot == 'gripper': 
-            self.refiner = PoseRefine()
+            self.refiner = PoseRefine(data_root=data_root)
         else:
             self.robot_model = RobotModel(os.path.join('robot_models', 'urdf', config.robot + '.urdf'), os.path.join('robot_models', 'meta', config.robot, 'meta.yaml'))
             self.joint_names = self.robot_model.joint_names
@@ -92,7 +94,7 @@ class GraspNetDataset(Dataset):
             suffix = '_gt' if self.config.render else ''
 
             # loading
-            path = os.path.join('data', 'scenes', scene, self.config.camera)
+            path = os.path.join(self.data_root, 'scenes', scene, self.config.camera)
             depth = np.array(Image.open(os.path.join(path, 'depth'+suffix, str_view + '.png')))
             seg = np.array(Image.open(os.path.join(path, 'label'+suffix, str_view + '.png')))
             try:
@@ -135,7 +137,7 @@ class GraspNetDataset(Dataset):
                 return ret_dict
 
             frac_suffix = '' if self.config.fraction == 1 else f'_{self.config.fraction}'
-            graspness_path = os.path.join('data', self.config.graspness_data+frac_suffix, scene, self.config.camera, str_view + '.npy')
+            graspness_path = os.path.join(self.data_root, self.config.graspness_data+frac_suffix, scene, self.config.camera, str_view + '.npy')
             if os.path.exists(graspness_path):
                 graspness = np.load(graspness_path)
                 graspness = graspness.reshape(-1)
@@ -148,8 +150,8 @@ class GraspNetDataset(Dataset):
 
             # load poses from world frame and transform to camera frame
             if self.config.robot == 'gripper':
-                poses_6d = np.load(os.path.join('data', 'gripper_grasps', scene, self.config.camera, 'poses.npy'))[::self.config.fraction]
-                grasp_points = np.load(os.path.join('data', 'gripper_grasps', scene, self.config.camera, 'points.npy'))[::self.config.fraction]
+                poses_6d = np.load(os.path.join(self.data_root, 'gripper_grasps', scene, self.config.camera, 'poses.npy'))[::self.config.fraction]
+                grasp_points = np.load(os.path.join(self.data_root, 'gripper_grasps', scene, self.config.camera, 'points.npy'))[::self.config.fraction]
 
                 assert self.config.sample_total >= self.config.k
                 if self.config.resample:
@@ -176,7 +178,7 @@ class GraspNetDataset(Dataset):
                 trans = poses_6d[:, -4:-1]
 
             else:
-                data_root = 'data'
+                data_root = self.data_root
                 assert self.config.resample
                 grasp_files = os.listdir(os.path.join(data_root, 'dex_grasps_new'+frac_suffix, scene, self.config.robot))
                 if len(grasp_files) == 0:

@@ -13,12 +13,14 @@ from src.utils.edge import detect_edge
 from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--camera', type=str, default='realsense')
+parser.add_argument('--4', type=str, default='realsense')
 parser.add_argument('--dataset', type=str, choices=['graspnet','acronym'], default='graspnet')
 parser.add_argument('--start', type=int, default=0)
 parser.add_argument('--end', type=int, default=190)
+parser.add_argument('--data_root', type=str, default='data', help='root path of the data')
+parser.add_argument('--camera', type=str, default='realsense', choices=['realsense', 'kinect'])
 args = parser.parse_args()
-
+data_root = args.data_root
 if args.dataset == 'graspnet':
     pbar = tqdm(total=(args.end - args.start) * 256)
 
@@ -29,7 +31,7 @@ if args.dataset == 'graspnet':
         for view_id in range(256):
             scene = f'scene_{str(scene_id).zfill(4)}'
             view = str(view_id).zfill(4)
-            path = os.path.join('data', 'scenes', scene, args.camera, 'depth_gt', f'{view}.png')
+            path = os.path.join(data_root, 'scenes', scene, args.camera, 'depth_gt', f'{view}.png')
 
             img = Image.open(path)
             img = np.array(img)
@@ -37,7 +39,7 @@ if args.dataset == 'graspnet':
 
             edges = detect_edge(img)
             edges_img = Image.fromarray(edges)
-            path = os.path.join('data', 'scenes', scene, args.camera, 'edge_gt', f'{view}.png')
+            path = os.path.join(data_root, 'scenes', scene, args.camera, 'edge_gt', f'{view}.png')
             os.makedirs(os.path.dirname(path), exist_ok=True)
             edges_img.save(path)
             pbar.update(1)

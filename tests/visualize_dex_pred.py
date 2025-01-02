@@ -20,12 +20,14 @@ from src.utils.util import pack_17dgrasp, unpack_17dgrasp, set_seed
 from src.utils.robot_info import GRIPPER_NEW_DEPTH
 
 parser = argparse.ArgumentParser()
-parser.add_argument('--ckpt_path', type=str, required=True)
+parser.add_argument('--data_root', type=str, default='data', help='root path of the data')
+# parser.add_argument('--ckpt_path', type=str, required=True)
+parser.add_argument('--ckpt_path', type=str)
 parser.add_argument('--robot_name', type=str, default='leap_hand', choices=['leap_hand'])
 parser.add_argument('--urdf_path', type=str, default='robot_models/urdf/leap_hand_simplified.urdf')
 parser.add_argument('--meta_path', type=str, default='robot_models/meta/leap_hand/meta.yaml')
 parser.add_argument('--camera', type=str, default='realsense')
-parser.add_argument('--scene', type=str, default='scene_0090')
+parser.add_argument('--scene', type=str, default='scene_0001')
 parser.add_argument('--view', type=str, default='0000')
 parser.add_argument('--grasp_num', type=int, default=1024)
 parser.add_argument('--output_path', type=str, default=None)
@@ -39,10 +41,23 @@ args = parser.parse_args()
 set_seed(args.seed)
 
 if __name__ == '__main__':
+    DEBUG = True
+    num_viz = 1
+    if DEBUG:
+        args.ckpt_path = '/media/yunlongwang/DatasetStorage/DexGraspNet2/DexGraspNet2.0-ckpts/OURS/ckpt/ckpt_50000.pth'
+        args.data_root = '/media/yunlongwang/DatasetStorage/DexGraspNet2/data'
+        args.scene = 'scene_0001'
+        args.view = '0000'
+        args.grasp_num = 1024
+        args.cate = 0
+
+
+    data_root = args.data_root
     vis = Vis(
         robot_name=args.robot_name,
         urdf_path=args.urdf_path,
         meta_path=args.meta_path,
+        data_root=data_root
     )
 
     _, pc = vis.scene_plotly(args.scene, args.view, args.camera, with_pc=True, mode='pc')
@@ -65,11 +80,24 @@ if __name__ == '__main__':
         edge = edge[None].to(device)
         data = {k: v.to(device) for k, v in data.items()}
         rot, trans, joints, score, obj_indices, seed_points = (t.cpu() for t in model.sample(data, args.grasp_num, edge=edge, graspness_scale=5, allow_fail=True, with_point=True, cate=False))
-
+        """
+            rot: (B, K, 3, 3)
+            trans: (B, K, 3)
+            joints: (B, K, joint_num)
+            score: (B, K)
+            obj_indices: (B, K) which is -1 if not categorized
+        """
     sel_rots = []
     sel_trans = []
     sel_joints = []
     sel_points = []
+
+    # convert to numpy
+    # rot = rot[0].numpy()
+    # trans = trans[0].numpy()
+    # joints = joints[0].numpy()
+    # score = score[0].numpy()
+    # obj_indices = obj_indices[0].numpy()
 
     if args.cate:
         for obj_idx in obj_indices.unique():
@@ -80,8 +108,10 @@ if __name__ == '__main__':
             sel_points.append(seed_points[best_idx])
     else:
         # best_idx = score.argmax()
+        # idxs = score.reshape(-1).sort(descending=True).indices
         idxs = score.reshape(-1).sort(descending=True).indices
-        for i in range(1):
+        # idxs = np.random.choice(idxs, num_viz, replace=True)
+        for i in range(num_viz):
             sel_rots.append(rot[0, idxs[i]])
             sel_trans.append(trans[0, idxs[i]])
             sel_joints.append(joints[0, idxs[i]])

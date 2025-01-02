@@ -1,12 +1,15 @@
+'''
+    1. Extract gripper grasp from GraspNet dataset, convert to camera coordinate and save to poses_gn.
+'''
+
+
 import os
 import sys
 
 os.chdir(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 sys.path.append(os.path.realpath('.'))
 
-from graspnetAPI import GraspNet, Grasp, GraspGroup
-import open3d as o3d
-import cv2
+from graspnetAPI import GraspNet
 import numpy as np
 from tqdm import trange
 
@@ -34,6 +37,7 @@ for sceneId in trange(cfgs.start, cfgs.end):
     camera_poses = np.load(os.path.join(g.root,'scenes','scene_%04d' %(sceneId,), cfgs.camera, 'camera_poses.npy'))
     camera_pose = camera_poses[0]
 
+    # transform grasp to camera coordinate
     rot = array[:, -13:-4].reshape(-1, 3, 3)
     new_rot = np.einsum('ij,njk->nik', camera_pose[:3, :3], rot)
     trans = array[:, -4:-1]

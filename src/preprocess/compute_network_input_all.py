@@ -20,6 +20,7 @@ def compute_network_input(scene_id):
         f'--scene_id {scene_id}',
         f'--seed {args.seed}',
         f'--overwrite {args.overwrite}',
+        f'--data_root {args.data_root}',
         f'--dataset {args.dataset}',
         # ' > /dev/null 2>&1',
     ])
@@ -30,7 +31,7 @@ def compute_network_input(scene_id):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--n_cpu', type=int, default=60)
+    parser.add_argument('--n_cpu', type=int, default=8)
     parser.add_argument('--robot_name', type=str,
         default='leap_hand', choices=['leap_hand'])
     parser.add_argument('--dataset', type=str, 
@@ -46,6 +47,7 @@ if __name__ == '__main__':
     parser.add_argument('--seed', type=int, 
         default=0)
     parser.add_argument('--overwrite', type=int, default=0)
+    parser.add_argument('--data_root', type=str, default='data', help='root path of the data')
     args = parser.parse_args()
     
     # get scene id list

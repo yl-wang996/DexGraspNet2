@@ -7,13 +7,42 @@ from typing import List, Tuple
 
 from src.utils.vis_plotly import Vis
 from src.utils.robot_info import GRIPPER_CENTER_SHIFT, GRIPPER_NEW_DEPTH, GRIPPER_SPACE_LEFT, GRIPPER_DEPTH_BASE, GRIPPER_HEIGHT, GRIPPER_MAX_WIDTH, GRIPPER_FINGER_WIDTH
+'''
+Refine the grasp of parallel jaw gripper：
+1. adapt the gripper depth to GRIPPER_NEW_DEPTH
+    trans = trans - rot[:, 0] * (GRIPPER_NEW_DEPTH - depth)
+    depth = GRIPPER_NEW_DEPTH
+2. convert the scene pcd from world frame to object frame, and check collision 
+3. crop the object-centric pcd to around gripper area
+4. fine grasp antipodal points from the grasp pose
+Input:
+    抓取位姿：
+        rot：抓手当前的旋转矩阵（3x3）。
+        trans：抓手当前的平移向量（3,）。
+        width：抓手夹爪之间的当前宽度。
+        depth：抓手的当前抓取深度。
+    物体相关信息：    
+        obj_id：目标物体的 ID。
+        obj_pose：物体在世界坐标系中的位姿矩阵（4x4）。
+    场景信息：    
+        table：桌面的平面描述，用一个 4 维向量表示平面方程。
+        extra：场景中其他物体的信息列表，包含物体 ID 和位姿。
+    其他参数：    
+        eps：抓取操作的容差，用于点云过滤等操作。
+output：
+    rot：优化后的旋转矩阵。
+    trans：优化后的平移向量。
+    width：调整后的抓手夹爪宽度。
+    depth：统一调整后的抓取深度。
+    grasp_point：优化后的抓取点位置。
+'''
 
 class PoseRefine:
     """
         Refine gripper pose by closing it and fix depth
     """
-    def __init__(self, N=10000):
-        mesh_path = os.path.join('data', 'meshdata')
+    def __init__(self, N=10000, data_root='data'):
+        mesh_path = os.path.join(data_root, 'meshdata')
         self.obj_ids = [id for id in os.listdir(mesh_path) if id.isnumeric()]
         self.meshes = dict()
         self.fps = dict()

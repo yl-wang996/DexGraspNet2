@@ -23,24 +23,37 @@ parser.add_argument('--view', type=str, default='0000')
 parser.add_argument('--grasp_num', type=int, default=1)
 parser.add_argument('--output_path', type=str, default=None)
 parser.add_argument('--frame', type=str, default='camera', choices=['world', 'camera'])
-parser.add_argument('--with_graspness', type=bool, default=True)
+parser.add_argument('--data_root', type=str, default='data', help='root path of the data')
+parser.add_argument('--with_graspness', type=bool, default=False)
+
+
 args = parser.parse_args()
 set_seed(2)
 
 if __name__ == '__main__':
+    # data_root = '/media/yunlongwang/DatasetStorage/DexGraspNet2/data'
+    data_root = args.data_root
     vis = Vis(
         robot_name=args.robot_name,
         urdf_path=args.urdf_path,
         meta_path=args.meta_path,
+        data_root=data_root
     )
-
-    view_plotly, pc, extrinsics = vis.scene_plotly(args.scene, args.view, args.camera, with_pc=True, mode='pc', graspness_path='dex_graspness_new' if args.with_graspness else None, with_extrinsics=True)
+    view_plotly, pc, extrinsics = vis.scene_plotly(
+        args.scene,
+        args.view,
+        args.camera,
+        with_pc=True,
+        mode='pc',
+        graspness_path='dex_graspness_new' if args.with_graspness else None,
+        with_extrinsics=True,
+    )
     raw_graspness = (pc[:, 4] + 1e-3).log()
     objectness = (pc[:, 3] != 0)
     graspness = torch.where(objectness, raw_graspness, raw_graspness * 0 + np.log(1e-3))
     idxs = torch.randperm(len(pc))[:10000]
-    cam0_wrt_table = np.load(os.path.join('data', 'scenes', args.scene, args.camera, 'cam0_wrt_table.npy'))
-    camera_pose_wrt_cam0 = np.load(os.path.join('data', 'scenes', args.scene, args.camera, 'camera_poses.npy'))[int(args.view)]
+    cam0_wrt_table = np.load(os.path.join(data_root, 'scenes', args.scene, args.camera, 'cam0_wrt_table.npy'))
+    camera_pose_wrt_cam0 = np.load(os.path.join(data_root, 'scenes', args.scene, args.camera, 'camera_poses.npy'))[int(args.view)]
     camera_pose = torch.from_numpy(np.einsum('ab,bc->ac', cam0_wrt_table, camera_pose_wrt_cam0))
     if args.frame == 'world':
         pc = pc.float()
@@ -50,7 +63,7 @@ if __name__ == '__main__':
 
     robot_plotly = []
     pc_plotly = []
-    path = os.path.join('data', 'dex_grasps_new', args.scene, args.robot_name)
+    path = os.path.join(data_root, 'dex_grasps_new', args.scene, args.robot_name)
     for p in os.listdir(path):
         if not p.endswith('.npz'):
             continue
